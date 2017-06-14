@@ -26,19 +26,22 @@
         var snakeHead; 
         var snakeSection = new Array();
         var snakePath = new Array();
-        var numSnakeSections = 3; 
+        var snakeGroup;
         var move = null;
         var food = null;
+        var score = 0;
 
 
         function create() {
             game.physics.startSystem(Phaser.Physics.ARCADE);
             game.world.setBounds(0, 0, snakeSize*mapLength, snakeSize*mapHeight);
+            snakeGroup = game.add.group();
+
             cursors = game.input.keyboard.createCursorKeys();          
           	initializeSnake();
           	registerInputHandlers();
           	move = moveRight;
-            game.physics.enable(snakeSection[0], Phaser.Physics.ARCADE);
+            game.physics.enable(snakeGroup, Phaser.Physics.ARCADE);
 
         }
         function moveLeft(sprite){
@@ -100,24 +103,47 @@
         	for (var i = 0; i < 3; i++) {
 	            snakeSection[i] = game.add.sprite(Math.floor(mapLength/2)*32-32*i, Math.floor(mapHeight/2)*32, 'square');
             	snakeSection[i].anchor.setTo(0, 0);
+                snakeGroup.add(snakeSection[i]);
             }
             snakeHead = snakeSection[0];
         }
-
+        function is_eating(){
+            if (food != null 
+                && snakeSection[0].position.x === food.position.x 
+                && snakeSection[0].position.y === food.position.y){
+                return true;
+            }
+            return false;
+        }
+        function spawn_food(){
+            if (food == null){
+                
+                var coord = pickCoordinate();
+                food = game.add.sprite(coord.x, coord.y, 'food');
+                food.anchor.setTo(0,0);
+            }
+        }
         function update() {
-        	if (c % 100000 === 0) {
-    			var coord = pickCoordinate();
-        		food = game.add.sprite(coord.x, coord.y, 'food');
-        		food.anchor.setTo(0,0);
-        	}
-            if (c % 10 == 0){
-                for (var i = numSnakeSections - 1; i > 0 ; i--)
+            spawn_food();
+            game.physics.arcade.collide(snakeGroup, snakeGroup, function(){ console.log("colliiiiisionnnn!!"); });
+            if (c % 10 == 0){   
+                for (var i = snakeSection.length - 1; i > 0 ; i--)
                 {
                     snakeSection[i].x = snakeSection[i-1].x;
                     snakeSection[i].y = snakeSection[i-1].y;
                 }
                 move(snakeSection[0]);
                 played = true;
+
+                if(is_eating()){
+                    food.destroy();
+                    food = null;
+                    score += 1;
+                    var last_element = snakeSection[snakeSection.length - 1];
+                    var newSnakeSection = game.add.sprite(last_element.position.x, last_element.position.y, 'square');
+                    snakeGroup.add(newSnakeSection);
+                    snakeSection.push(newSnakeSection);
+                }
             }
             c ++;
         }
