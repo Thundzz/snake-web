@@ -32,6 +32,9 @@
         var score = 0;
         var pendingBlock = null;
 
+        var text;
+        var SCORE_TEXT = "Score : ";
+
 
         function create() {
             game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -40,12 +43,21 @@
 
             cursors = game.input.keyboard.createCursorKeys();          
           	initializeSnake();
+            initializeScore();
           	registerInputHandlers();
           	move = moveRight;
             game.physics.enable(snakeGroup, Phaser.Physics.ARCADE);
-
-
         }
+
+        function initializeScore() {
+          text = game.add.text(snakeSize*(mapLength-1), snakeSize, SCORE_TEXT, {
+            font: "24px Arial",
+            fill: "#777777",
+            align: "center"
+          });
+          text.anchor.setTo(1, 0);
+        }
+
         function moveLeft(sprite){
         	sprite.x -= 32 ;
         	sprite.x = (sprite.x + 32*mapLength) % (32*mapLength);
@@ -152,15 +164,12 @@
                     pendingBlock = newSnakeSection;
                     snakeSection.push(newSnakeSection);
                 }
+                text.setText(SCORE_TEXT+score);
             }
             c ++;
         }
 
-        function render() {
-
-            game.debug.spriteInfo(snakeHead, 32, 32);
-
-        }
+        function render() {}
 
         function map2pix(px) {
         	return px*32;
