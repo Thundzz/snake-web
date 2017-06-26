@@ -30,18 +30,20 @@
         var move = null;
         var food = null;
         var score = 0;
+        var pendingBlock = null;
 
 
         function create() {
             game.physics.startSystem(Phaser.Physics.ARCADE);
             game.world.setBounds(0, 0, snakeSize*mapLength, snakeSize*mapHeight);
-            snakeGroup = game.add.group();
+            snakeGroup = game.add.physicsGroup();
 
             cursors = game.input.keyboard.createCursorKeys();          
           	initializeSnake();
           	registerInputHandlers();
           	move = moveRight;
             game.physics.enable(snakeGroup, Phaser.Physics.ARCADE);
+
 
         }
         function moveLeft(sprite){
@@ -64,7 +66,7 @@
 
         function registerInputHandlers(){
 
-			key1 = game.input.keyboard.addKey(Phaser.Keyboard.UP);
+			  key1 = game.input.keyboard.addKey(Phaser.Keyboard.UP);
     		key1.onDown.add(setMovementUp, this);
     		key1 = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
     		key1.onDown.add(setMovementDown, this);
@@ -112,6 +114,8 @@
                 && snakeSection[0].position.x === food.position.x 
                 && snakeSection[0].position.y === food.position.y){
                 return true;
+            } else {
+              console.log(food != null, snakeSection[0].position.x === food.position.x,snakeSection[0].position.y === food.position.y);
             }
             return false;
         }
@@ -123,10 +127,10 @@
                 food.anchor.setTo(0,0);
             }
         }
-        function update() {
-            spawn_food();
-            game.physics.arcade.collide(snakeGroup, snakeGroup, function(){ console.log("colliiiiisionnnn!!"); });
-            if (c % 10 == 0){   
+        function update() {  
+            if (c % 10 == 0) {
+                game.physics.arcade.collide(snakeGroup,snakeGroup, function(){ console.log("colliiiiisionnnn!!"); });   
+                spawn_food();
                 for (var i = snakeSection.length - 1; i > 0 ; i--)
                 {
                     snakeSection[i].x = snakeSection[i-1].x;
@@ -135,13 +139,17 @@
                 move(snakeSection[0]);
                 played = true;
 
+                if (pendingBlock !== null) {
+                  snakeGroup.add(pendingBlock);
+                  pendingBlock = null;
+                }
                 if(is_eating()){
                     food.destroy();
                     food = null;
                     score += 1;
                     var last_element = snakeSection[snakeSection.length - 1];
                     var newSnakeSection = game.add.sprite(last_element.position.x, last_element.position.y, 'square');
-                    snakeGroup.add(newSnakeSection);
+                    pendingBlock = newSnakeSection;
                     snakeSection.push(newSnakeSection);
                 }
             }
