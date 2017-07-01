@@ -136,9 +136,7 @@ function spawn_food() {
 
 function update() {
 	if (c % 10 == 0) {
-		game.physics.arcade.collide(snakeGroup, snakeGroup, function() {
-			console.log("colliiiiisionnnn!!");
-		});
+		game.physics.arcade.collide(snakeGroup, snakeGroup, endGame);
 		spawn_food();
 		for (var i = snakeSection.length - 1; i > 0; i--) {
 			snakeSection[i].x = snakeSection[i - 1].x;
@@ -163,6 +161,10 @@ function update() {
 		text.setText(SCORE_TEXT + score);
 	}
 	c++;
+}
+
+function endGame(){
+	game.state.start('end'); 
 }
 
 function render() {}

@@ -4,4 +4,5 @@ mapHeight = 19;
 
 var game = new Phaser.Game(snakeSize * mapLength, snakeSize * mapHeight, Phaser.CANVAS, 'phaser-example');
 game.state.add('game', gameState);
+game.state.add('end', endState);
 game.state.start('game'); 
