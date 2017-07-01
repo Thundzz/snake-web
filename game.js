@@ -10,6 +10,7 @@ var c = 0;
 function preload() {
 	game.load.image('square', 'square.png');
 	game.load.image('food', 'food.png');
+	reset();
 }
 
 var snakeHead;
@@ -23,6 +24,18 @@ var pendingBlock = null;
 
 var text;
 var SCORE_TEXT = "Score : ";
+
+function reset() {
+	snakeHead;
+	snakeSection = new Array();
+	snakePath = new Array();
+	snakeGroup;
+	move = null;
+	food = null;
+	score = 0;
+	pendingBlock = null;
+	text = null;
+}
 
 
 function create() {
@@ -69,7 +82,6 @@ function moveDown(sprite) {
 
 
 function registerInputHandlers() {
-
 	key1 = game.input.keyboard.addKey(Phaser.Keyboard.UP);
 	key1.onDown.add(setMovementUp, this);
 	key1 = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
@@ -78,7 +90,6 @@ function registerInputHandlers() {
 	key1.onDown.add(setMovementLeft, this);
 	key1 = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
 	key1.onDown.add(setMovementRight, this);
-
 }
 
 function setMovementUp() {
@@ -127,7 +138,6 @@ function is_eating() {
 
 function spawn_food() {
 	if (food == null) {
-
 		var coord = pickCoordinate();
 		food = game.add.sprite(coord.x, coord.y, 'food');
 		food.anchor.setTo(0, 0);
@@ -135,7 +145,7 @@ function spawn_food() {
 }
 
 function update() {
-	if (c % 10 == 0) {
+	if (c % 6 == 0) {
 		game.physics.arcade.collide(snakeGroup, snakeGroup, endGame);
 		spawn_food();
 		for (var i = snakeSection.length - 1; i > 0; i--) {
@@ -163,8 +173,8 @@ function update() {
 	c++;
 }
 
-function endGame(){
-	game.state.start('end'); 
+function endGame() {
+	game.state.start('end');
 }
 
 function render() {}
@@ -174,10 +184,29 @@ function map2pix(px) {
 }
 
 function pickCoordinate() {
-	return {
-		x: map2pix(cocorico(0, mapLength)),
-		y: map2pix(cocorico(0, mapHeight))
-	};
+	var occupiedPositions = snakeSection.map(function(part) {
+		return {
+			x: part.position.x,
+			y: part.position.y
+		};
+	});
+	do {
+		var picked = {
+			x: map2pix(cocorico(0, mapLength)),
+			y: map2pix(cocorico(0, mapHeight))
+		}
+	} while (containsPosition(picked, occupiedPositions));
+	return picked;
+}
+
+function containsPosition(obj, list) {
+	var i;
+	for (i = 0; i < list.length; i++) {
+		if (list[i].x === obj.x && list[i].y ==obj.y) {
+			return true;
+		}
+	}
+	return false;
 }
 
 function cocorico(min, max) {
