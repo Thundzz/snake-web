@@ -32,8 +32,6 @@ var endState = {
 	registerInputHandlers: function() {
 		key1 = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
 		key1.onDown.add(this.restartGame, this);
-
-
 	},
 	restartGame: function() {
 		game.state.start('game');
